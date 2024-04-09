@@ -1,0 +1,44 @@
+version: '3.1'
+
+services:
+  db:
+    image: mysql:8.0.28
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "super-app"
+    ports:
+      - "3306:3306"
+    restart: always
+    networks:
+      - react
+
+  backend:
+    build: 
+      context: ./super-app/node
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: password
+      DB_NAME: super-app
+    depends_on:
+      - db
+    networks:
+      - react
+
+  php-service:
+    build:
+      context: ./super-app/php
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - react
+
+networks:
+  react:
+    driver: bridge
